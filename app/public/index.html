@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>金融营销宣传智能审查 · 消保审查工作台</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z' fill='%231d4ed8'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/>
+      </svg>
+    </div>
+    <div class="brand-text">
+      <h1>金融营销宣传智能审查</h1>
+      <p>消费者权益保护 · 事前审查环节</p>
+    </div>
+  </div>
+  <div class="env">
+    <span class="dot" id="envDot"></span>
+    <span id="envText">正在连接审查引擎…</span>
+  </div>
+</header>
+
+<nav class="stepper" id="stepper">
+  <div class="step is-active" data-step="1"><i>1</i><span>发起审查</span><em class="step-sub">业务部门：提交材料</em></div>
+  <div class="step" data-step="2"><i>2</i><span>智能审查</span><em class="step-sub">系统：解析 + 规则初筛 + 大模型审查</em></div>
+  <div class="step" data-step="3"><i>3</i><span>人工复核</span><em class="step-sub">消保人员：采纳 / 修改 / 驳回</em></div>
+  <div class="step" data-step="4"><i>4</i><span>审查完结</span><em class="step-sub">系统：生成报告 + 归档</em></div>
+</nav>
+
+<main class="wrap">
+
+  <!-- 步骤一 -->
+  <section class="panel" id="panelSetup">
+    <div class="card">
+      <div class="card-head">
+        <h2>送审信息</h2>
+        <span class="hint">员工不得自行编发未经审查的金融营销宣传信息</span>
+      </div>
+      <div class="grid2">
+        <label class="field">
+          <span>业务条线</span>
+          <select id="lineSel">
+            <option value="理财">理财</option>
+            <option value="贷款">贷款</option>
+            <option value="信用卡">信用卡</option>
+            <option value="存款">存款</option>
+            <option value="保险代销">保险代销</option>
+            <option value="其他">其他</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>材料类型</span>
+          <select id="typeSel">
+            <option value="海报">海报</option>
+            <option value="短信">短信</option>
+            <option value="文案">文案</option>
+            <option value="H5">H5</option>
+            <option value="折页">折页</option>
+            <option value="其他">其他</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="drop" id="drop">
+        <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.docx,.pdf,.txt,.pptx" hidden />
+        <div class="drop-inner">
+          <div class="drop-ico">↑</div>
+          <strong>拖拽材料到此处，或点击选择文件</strong>
+          <span>图片 jpg/png · Word docx · PDF（文字/扫描） · TXT · PPTX</span>
+        </div>
+      </div>
+
+      <div class="notice">
+        <b>格式能力与限制：</b>
+        <span class="notice-item"><b>图片</b>：多模态视觉识别，中文海报与艺术字优于通用 OCR；长图（长边&gt;2000px）自动切块识别，切缝处保留 15% 重叠，小字不丢。</span>
+        <span class="notice-item"><b>docx</b>：提取正文＋表格＋内嵌图片文字；Office 矢量图（EMF/WMF）与图表内文字无法解析，已标注需人工复核。</span>
+        <span class="notice-item"><b>PDF</b>：文字页直接抽文本层；扫描页自动转图片识别，识别率有限请逐字核对；超 30 页扫描件建议拆分上传。</span>
+        <span class="notice-item"><b>pptx</b>：提取各页文本框、组合形状、表格文字；母版与备注页不参与审查；图表内文字可能缺失，已生成人工复核提示。</span>
+        <span class="notice-item"><b>上限</b>：单文件 25MB；每次大模型调用 8 条、全局 30 条（超出自动合并同类并注明）、单屏展示 20 条，完整报告以导出为准。</span>
+      </div>
+
+      <div class="samples">
+        <span class="samples-label">内置示例</span>
+        <button class="chip" data-sample="A">A · 理财短信（多重违规）</button>
+        <button class="chip" data-sample="B">B · 贷款海报文案</button>
+        <button class="chip" data-sample="C">C · 合规对照文本</button>
+        <button class="chip" data-sample="D">D · 银行海报（极限词密集）</button>
+      </div>
+      <div class="samples">
+        <span class="samples-label">回归样例</span>
+        <button class="chip" data-sample="R1">R1 · 变体极限词（换词不换模式）</button>
+        <button class="chip" data-sample="R2">R2 · 轻微违规（历史业绩暗示）</button>
+        <button class="chip" data-sample="R3">R3 · 纯合规（测误报）</button>
+      </div>
+    </div>
+
+    <div class="card" id="parseCard" hidden>
+      <div class="card-head">
+        <h2>解析结果确认</h2>
+        <span class="tag" id="parseSource">—</span>
+      </div>
+      <div class="parse-meta">
+        <span id="parseName">—</span>
+        <span id="parseChars">0 字</span>
+      </div>
+      <textarea id="parseText" spellcheck="false"></textarea>
+      <div class="warn" id="parseWarn" hidden></div>
+      <div class="card-foot">
+        <span class="hint">请核对文本是否完整，确认无误后开始审查。</span>
+        <button class="btn primary" id="btnReview">开始智能审查 →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 步骤二 -->
+  <section class="panel" id="panelRun" hidden>
+    <div class="card">
+      <div class="card-head"><h2>智能审查引擎</h2><span class="hint" id="runHint">规则层初筛 → RAG 法条 → 大模型语义分析 → 生成意见</span></div>
+      <ul class="progress" id="progress">
+        <li data-k="parse"><i></i><span>文本解析</span><em>待执行</em></li>
+        <li data-k="rules"><i></i><span>规则层扫描</span><em>待执行</em></li>
+        <li data-k="semantic"><i></i><span>大模型语义分析</span><em>待执行</em></li>
+        <li data-k="merge"><i></i><span>生成审查意见</span><em>待执行</em></li>
+      </ul>
+      <div class="warn" id="runError" hidden></div>
+    </div>
+  </section>
+
+  <!-- 汇总 -->
+  <section class="panel" id="panelSummary" hidden>
+    <div class="card summary">
+      <div class="sum-main">
+        <div class="sum-verdict" id="sumVerdict">—</div>
+        <div class="sum-sub" id="sumSub">—</div>
+      </div>
+      <div class="sum-grid">
+        <div><label>材料名称</label><b id="sumName">—</b></div>
+        <div><label>业务条线 / 类型</label><b id="sumLine">—</b></div>
+        <div><label>审查时间</label><b id="sumTime">—</b></div>
+        <div><label>意见总数</label><b id="sumCount">0</b></div>
+        <div><label>风险分布</label>
+          <b class="risk-dist">
+            <span class="pill high">高 <i id="cHigh">0</i></span>
+            <span class="pill mid">中 <i id="cMid">0</i></span>
+            <span class="pill low">低 <i id="cLow">0</i></span>
+          </b>
+        </div>
+        <div><label>来源拆分</label><b id="sumSource">—</b></div>
+      </div>
+      <div class="sum-cap" id="sumCap" hidden></div>
+    </div>
+  </section>
+
+  <!-- 意见 -->
+  <section class="panel" id="panelOpinions" hidden>
+    <div class="card">
+      <div class="card-head">
+        <h2>审查意见</h2>
+        <span class="hint" id="opHint">逐条核对后执行采纳 / 修改 / 驳回</span>
+      </div>
+      <div class="op-toolbar">
+        <button class="btn sm" id="btnUndo" disabled title="快捷键 Ctrl+Z / ⌘+Z">撤销上一步</button>
+        <button class="btn sm" id="btnRedo" disabled title="快捷键 Ctrl+Shift+Z / ⌘+Shift+Z">重做</button>
+        <button class="btn sm ghost" id="btnLog">业务链路追踪（<span id="logCount">0</span>）</button>
+        <span class="hint" id="undoHint"></span>
+      </div>
+      <div class="log-box" id="logBox" hidden></div>
+      <div id="opList" class="op-list"></div>
+      <div class="card-foot">
+        <span class="hint" id="opFooterHint">尚有 0 条待处理</span>
+        <span class="btn-row">
+          <button class="btn" id="btnExpand" hidden>展开其余</button>
+          <button class="btn primary" id="btnFinish" disabled>完成复核，生成报告 →</button>
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 报告 -->
+  <section class="panel" id="panelReport" hidden>
+    <div class="card">
+      <div class="card-head">
+        <h2>审查完结 · 最终报告</h2>
+        <span class="tag ok">审查完结</span>
+      </div>
+      <div id="reportBody" class="report"></div>
+      <div class="card-foot wrap-foot">
+        <div class="btn-row">
+          <button class="btn" id="btnCopy">复制报告</button>
+          <button class="btn" id="btnTxt">下载 .txt</button>
+          <button class="btn" id="btnHtml">下载 .html</button>
+          <button class="btn" id="btnHistory">查看历史审查记录</button>
+        </div>
+        <div class="btn-row">
+          <button class="btn" id="btnPush">推送业务部门</button>
+          <button class="btn primary" id="btnRestart">再次发起审查</button>
+        </div>
+      </div>
+      <div class="push-tip" id="pushTip" hidden>
+        <b>审查意见已推送，等待业务部门修订后重新送审。</b>
+        <span>材料修订完成后需重新提交，再次进入「材料解析 → 规则初筛 → 语义审查」链路，形成闭环。</span>
+      </div>
+    </div>
+
+    <div class="card" id="traceCard">
+      <div class="card-head">
+        <h2>业务链路追踪</h2>
+        <button class="btn sm ghost" id="btnTrace">收起</button>
+      </div>
+      <div class="trace-body" id="traceBody"></div>
+    </div>
+
+    <div class="card reflow">
+      <div class="card-head"><h2>数据回流</h2><span class="hint">事后监督环节示意</span></div>
+      <div class="reflow-grid">
+        <div><b id="rfAccept">0</b><span>直接采纳</span></div>
+        <div><b id="rfModify">0</b><span>修改后采纳</span></div>
+        <div><b id="rfReject">0</b><span>驳回</span></div>
+        <div><b id="rfRule">0</b><span>规则库命中</span></div>
+        <div><b id="rfLlm">0</b><span>大模型判定</span></div>
+      </div>
+      <p class="reflow-note">
+        人工修改后的审查结论、驳回理由与新增违规样本，将回流至消保规则库与专家知识库，用于扩充极限词/保本承诺词库、
+        优化语义审查提示词；审查记录同步进入事后监督台账，支撑意见督办落实率、采纳率统计，并与投诉数据打通做产品全生命周期管理。
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot" id="pageFoot">
+  审查依据：《中华人民共和国消费者权益保护法》《中华人民共和国广告法》《银行保险机构消费者权益保护管理办法》《关于进一步规范金融营销宣传行为的通知》（银发〔2019〕316号）
+</footer>
+
+<!-- 修改弹窗 -->
+<div class="modal" id="modalEdit" hidden>
+  <div class="modal-box">
+    <div class="modal-head"><h3>修改审查意见</h3><button class="x" data-close>×</button></div>
+    <div class="modal-body">
+      <label class="field"><span>审查结论</span><textarea id="editConclusion" rows="4"></textarea></label>
+      <label class="field"><span>法律法规依据</span><textarea id="editLaw" rows="2"></textarea></label>
+      <label class="field"><span>改进建议</span><textarea id="editSuggestion" rows="3"></textarea></label>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" data-close>取消</button>
+      <button class="btn primary" id="btnSaveEdit">保存并采纳</button>
+    </div>
+  </div>
+</div>
+
+<!-- 驳回弹窗 -->
+<div class="modal" id="modalReject" hidden>
+  <div class="modal-box">
+    <div class="modal-head"><h3>驳回该条意见</h3><button class="x" data-close>×</button></div>
+    <div class="modal-body">
+      <label class="field"><span>驳回理由（必填）</span><textarea id="rejectReason" rows="4" placeholder="例如：该表述已在下文风险提示中充分说明，不构成误导。"></textarea></label>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" data-close>取消</button>
+      <button class="btn danger" id="btnSaveReject">确认驳回</button>
+    </div>
+  </div>
+</div>
+
+<!-- 通用确认框 -->
+<div class="modal" id="modalConfirm" hidden>
+  <div class="modal-box narrow">
+    <div class="modal-head"><h3 id="cfTitle">确认</h3><button class="x" data-cf-close>×</button></div>
+    <div class="modal-body"><p id="cfBody" class="cf-body"></p></div>
+    <div class="modal-foot" id="cfFoot"></div>
+  </div>
+</div>
+
+<!-- 历史审查记录 -->
+<div class="modal" id="modalHistory" hidden>
+  <div class="modal-box">
+    <div class="modal-head"><h3>历史审查记录（最近 3 次）</h3><button class="x" data-close>×</button></div>
+    <div class="modal-body" id="historyBody"></div>
+    <div class="modal-foot"><button class="btn" data-close>关闭</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@dev/lib/index.global.js"></script>
+<script src="./rules.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>

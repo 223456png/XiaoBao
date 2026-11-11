@@ -1,0 +1,13 @@
+{
+  "name": "consumer-review",
+  "version": "1.0.0",
+  "private": true,
+  "description": "金融营销宣传智能审查",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
